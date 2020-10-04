@@ -1,11 +1,11 @@
 /*----------------------------------------------------------------------------------------------------------------------------//
+//NOM DU PROGRAMME: Robus                                                                                                     //
 //                                                                                                                            //
+//NOM DU FICHIER: Main.cpp                                                                                                    //
 //                                                                                                                            //
+//PROGRAMMEURS: Anthony Royer, Vincent Dagenais et Bertrand Labrecque                                                         //
 //                                                                                                                            //
-//                                                                                                                            //
-//                                                                                                                            //
-//                                                                                                                            //
-//                                                                                                                            //
+//DESCRIPTION: Fichier pour le déplacement du robot ROBUS pour la compétition                                                 //
 //                                                                                                                            //
 //----------------------------------------------------------------------------------------------------------------------------*/
 
@@ -31,10 +31,11 @@ float MotorSpeedInput = 0.5;
 int32_t ReadEncodeur2 = 0;
 int32_t ReadEncodeur1 = 0;
 int i = 0; //valeur pour la boucle du main
-//0 = valeur de distance (en cm) et 1 valeur de rotation ( en degrées par rapport au centre avant du robot)
-double mvmt_matrix[2][nb_mvmt] = {
-  {0,1,0,1,0,1},
-  {50,45,25,-45,70,90}
+//0 = valeur de distance (en cm) et 1 valeur de rotation ( en degrées par rapport au centre avant du robot) et 2 une courbe (premiere valeur = distance et 2e Tangeante a distance)
+double mvmt_matrix[3][nb_mvmt] = {
+  {0,1,0,1,0,2},
+  {50,45,25,-45,70,90},
+  {0,0,0,0,0,30}
 };
 //Matrice utilisée pour stocker le prochain mouvement (en ticks de rotation)
 double traveldistance[2][2] = {
@@ -55,7 +56,7 @@ double traveldistance[2][2] = {
   traveldistance [1] [0] = {0};
   traveldistance [1] [1] = {0};
   //Serial.println("Calculate Travel where traveltype is :");
-  Serial.print(traveltype);
+  //Serial.print(traveltype);
   switch (traveltype){
       case 0:
           // Si le type de valeur est une distance
@@ -69,6 +70,10 @@ double traveldistance[2][2] = {
           traveldistance [1] [0] = calculatewheelticks((double)((travelvalue/360)*CIRCUMFERENCEWHEELZ));
           traveldistance [1] [1] = 0 - traveldistance [1] [0];
           break;
+      case 2:
+          //Si le type de valeur est une courbe
+
+        break;
       default:
         //Serial.println("Calculate Travel case default");
           break;
@@ -120,6 +125,10 @@ double traveldistance[2][2] = {
             MOTOR_SetSpeed(MOTOR1ID, 0);
             destinationreached = true;
           }
+        break;
+        //Déplacement de type courbe (les deux roues irons dans la même direction mais pas au même rytme)
+        case 2:
+
         break;
       default:
         break;
