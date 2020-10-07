@@ -18,23 +18,24 @@
 const double WHEELDIAMETER = 7.62;      //diametre en centimetres
 const double WHEELCIRCUMFERENCE = WHEELDIAMETER*PI;
 const int WHEELTICKS = 3200;
-const double DIAMETERWHEELZ = 19;       //Distance entre mes deux roues (MESURÉE AVEC UNE RÈGLE)
+const double DIAMETERWHEELZ = 19;       //Distance entre mes deux roues (MESURÉE AVEC UNE RÈGLE) 19
 const double CIRCUMFERENCEWHEELZ = DIAMETERWHEELZ*PI;
 const uint8_t MOTOR2ID = 0;
 const uint8_t MOTOR1ID = 1;
-const int nb_mvmt = 6;
+const int nb_mvmt = 11;
 const double kpa = 0.0001;
-const double kda = 0.000000001;
+const double kda = 0.0000001;
 const double kia = 0.000001;
 const double kpb = 0.01;
 const double kdb = 0.000005;
 const double kib = 0.00001;
-const int deltaT = 100; //en milisecondes
+const int deltaT = 50; //en milisecondes
 //----------------------------------------------------------------------------------------------------------------------------//
 
 //--------------------------------------------Initialisation de variables globales--------------------------------------------//
 //Variables Globales
 float MotorSpeedInput = 0.5;
+float MotorSpeedInputRotation = 0.25;
 int32_t ReadEncodeur2 = 0;
 int32_t ReadEncodeur1 = 0;
 int i = 0; //valeur pour la boucle du main
@@ -51,9 +52,9 @@ double error_matrix[3][2] = {
 };
 //0 = valeur de distance (en cm) et 1 valeur de rotation ( en degrées par rapport au centre avant du robot) et 2 une courbe (premiere valeur = distance et 2e Tangeante a distance)
 double mvmt_matrix[3][nb_mvmt] = {
-  {0,1,0,1,0,2},
-  {1000,45,25,-45,70,90},
-  {0,0,0,0,0,30}
+  {0,1,0,1,0,1,0,1,0,1,0},
+  {104.5,-40,57.5,80,194.5,-40,97,-80,90,80,122.5},
+  {0,0,0,0,0,30,0,0,0,0,0}
 };
 //Matrice utilisée pour stocker le prochain mouvement (en ticks de rotation)
 double traveldistance[2][2] = {
@@ -185,18 +186,17 @@ double traveldistance[2][2] = {
         break;
       //Déplacement de type angle (une roue va avoir une décroissance au niveau de l'encodeur)
       case 1:
-      break;
-        if ((traveldistance [1] [0] > 0) and((ReadEncodeur2 < traveldistance [1] [0]) or (ReadEncodeur1 > traveldistance [1] [1])))    //REMPLACER PAR PID EVENTUELLEMENT
+         if ((traveldistance [1] [0] > 0) and((ReadEncodeur2 < traveldistance [1] [0]) or (ReadEncodeur1 > traveldistance [1] [1])))    //REMPLACER PAR PID EVENTUELLEMENT
           {
             
             //Si il s'agit d'un angle positif (a rotation horaire)
             
-            MOTOR_SetSpeed(MOTOR2ID, MotorSpeedInput + pid(moyenneEncodeurs,ReadEncodeur2,1,MOTOR2ID));
-            MOTOR_SetSpeed(MOTOR1ID, 0- MotorSpeedInput - ratio*pid(moyenneEncodeurs,ReadEncodeur1,ratio,MOTOR1ID));
+            MOTOR_SetSpeed(MOTOR2ID, MotorSpeedInputRotation + pid(moyenneEncodeurs,ReadEncodeur2,1,MOTOR2ID));
+            MOTOR_SetSpeed(MOTOR1ID, 0- MotorSpeedInputRotation - ratio*pid(moyenneEncodeurs,ReadEncodeur1,ratio,MOTOR1ID));
           } else if((traveldistance [1] [0] < 0) and((ReadEncodeur2 > traveldistance [1] [0]) or (ReadEncodeur1 < traveldistance [1] [1]))){
             //Si il s'agit d'un angle négatif (a rotation anti-horaire)
-            MOTOR_SetSpeed(MOTOR2ID, 0 - MotorSpeedInput - pid(moyenneEncodeurs,ReadEncodeur2,1,MOTOR2ID));
-            MOTOR_SetSpeed(MOTOR1ID, MotorSpeedInput + ratio*pid(moyenneEncodeurs,ReadEncodeur1,ratio,MOTOR1ID));
+            MOTOR_SetSpeed(MOTOR2ID, 0 - MotorSpeedInputRotation - pid(moyenneEncodeurs,ReadEncodeur2,1,MOTOR2ID));
+            MOTOR_SetSpeed(MOTOR1ID, MotorSpeedInputRotation + ratio*pid(moyenneEncodeurs,ReadEncodeur1,ratio,MOTOR1ID));
           }else{
             //Destination atteinte, alors arrêter les moteurs
             MOTOR_SetSpeed(MOTOR2ID, 0);
