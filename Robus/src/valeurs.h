@@ -6,14 +6,14 @@
 #define DIAMETERWHEELZ 19       //Distance entre mes deux roues (MESURÉE AVEC UNE RÈGLE) 19
 #define MotorSpeedInput 0.5
 #define MotorSpeedInputRotation 0.25
-const double WHEELCIRCUMFERENCE = WHEELDIAMETER*PI;
-const double CIRCUMFERENCEWHEELZ = DIAMETERWHEELZ*PI;
-const uint8_t MOTOR2ID = LEFT;
-const uint8_t MOTOR1ID = RIGHT;
-const double kpa = 0.0002;
-const double kia = 0.00002;
-const double kpb = 0.0005;
-const double kib = 0.00001;      //MODIFIER PLUS GROS
+#define WHEELCIRCUMFERENCE WHEELDIAMETER*PI
+#define CIRCUMFERENCEWHEELZ DIAMETERWHEELZ*PI
+#define MOTOR2ID LEFT
+#define MOTOR1ID RIGHT
+#define kpa 0.0002
+#define kia 0.00002
+#define kpb 0.0005
+#define kib 0.00001              //MODIFIER PLUS GROS
 #define deltaT 25                //en milisecondes
 #define direction 0              //Si il s'agit d'un mouvement de type linéaire
 #define angle 1                  //Si il s'agit d'un mouvement de type rotation

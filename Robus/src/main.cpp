@@ -15,15 +15,16 @@
 #include <Valeurs.h>
 //----------------------------------------------------------------------------------------------------------------------------//
 
+#define nb_mvmt 23
+#define kp kpb
+#define kd 0.00002
+#define ki kib
+
 //--------------------------------------------Initialisation de variables globales--------------------------------------------//
 //Variables Globales
-const uint8_t nb_mvmt = 23;
 int32_t ReadEncodeur2 = 0;
 int32_t ReadEncodeur1 = 0;
 int i = 0; //valeur pour la boucle du main
-double kp = kpb;
-double kd = 0.00002;
-double ki = kib;
 double rotationspeed = 0;
 double ratio = 1;
 int last_error = 2;
@@ -90,7 +91,6 @@ double traveldistance[2][2] = {
     Serial.print("last error :");
     Serial.println(error_matrix[last_error][MOTORID]);
     */
-    //double integral = error_matrix[previous_integral][MOTORID] + (error*deltaT);
     double integral = error_matrix[previous_integral][MOTORID] + error;
     double derivative = (error - error_matrix[last_error][MOTORID])/deltaT;
     //int derivative = 0;
