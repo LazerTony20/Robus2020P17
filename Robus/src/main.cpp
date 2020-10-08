@@ -18,13 +18,11 @@
 //--------------------------------------------Initialisation de variables globales--------------------------------------------//
 //Variables Globales
 const uint8_t nb_mvmt = 23;
-float MotorSpeedInput = 0.5;
-float MotorSpeedInputRotation = 0.25;
 int32_t ReadEncodeur2 = 0;
 int32_t ReadEncodeur1 = 0;
 int i = 0; //valeur pour la boucle du main
 double kp = kpb;
-double kd = 0;
+double kd = 0.00002;
 double ki = kib;
 double rotationspeed = 0;
 double ratio = 1;
@@ -33,7 +31,7 @@ int previous_integral = 0;
 double error_matrix[3][2] = {
   {MOTOR1ID,MOTOR2ID},
   {0,0},
-  {0,0}
+  {0.0001,0}
 };
 //0 = valeur de distance (en cm) et 1 valeur de rotation ( en degrées par rapport au centre avant du robot) et 2 une courbe (premiere valeur = distance et 2e Tangeante a distance)
 double mvmt_matrix[3][nb_mvmt] = {
@@ -58,15 +56,13 @@ double traveldistance[2][2] = {
   switch (traveltype){
       case direction:
           // Si le type de valeur est une distance
-          //Serial.println("Calculate Travel case 0");
           traveldistance [1] [MOTOR2ID] = calculatewheelticks(travelvalue);
-          traveldistance [1] [MOTOR1ID] = traveldistance [1] [0];
+          traveldistance [1] [MOTOR1ID] = traveldistance [1] [MOTOR2ID];
           break;
       case angle:
           // Si la type de valeur est un angle
-          //Serial.println("Calculate Travel case 1");
           traveldistance [1] [MOTOR2ID] = calculatewheelticks((double)((travelvalue/360)*CIRCUMFERENCEWHEELZ));
-          traveldistance [1] [MOTOR1ID] = 0 - traveldistance [1] [0];
+          traveldistance [1] [MOTOR1ID] = 0 - traveldistance [1] [MOTOR2ID];
           break;
       case curve:
           //Si le type de valeur est une courbe
@@ -96,16 +92,14 @@ double traveldistance[2][2] = {
     */
     //double integral = error_matrix[previous_integral][MOTORID] + (error*deltaT);
     double integral = error_matrix[previous_integral][MOTORID] + error;
-    //double derivative = (error - error_matrix[last_error][MOTORID])/deltaT;
-    double derivative = 0;
+    double derivative = (error - error_matrix[last_error][MOTORID])/deltaT;
+    //int derivative = 0;
     pidValue = (kp*error + kd*derivative + ki*integral);
     error_matrix[last_error][MOTORID] = error;
     error_matrix[previous_integral][MOTORID] = integral;
-    //Serial.print("PID : ");
-    //Serial.println(pidValue);
+    //Serial.print("PID : ");Serial.println(pidValue);
     return pidValue;
     //moyenne des deux distances multipliées par leur ratio
-     
   }
 
 //---Fonction pour faire bouger le robot selon le type de mouvement jusqua sa destination
@@ -116,7 +110,7 @@ double traveldistance[2][2] = {
     Serial.println("matrix value at this position :");
     Serial.println(mvmt_matrix[0][pos_mvmt_matrix]);
     */
-    calculatetravel((int)mvmt_matrix[0][pos_mvmt_matrix], mvmt_matrix[1][pos_mvmt_matrix]);
+    calculatetravel((int)mvmt_matrix[MOTOR2ID][pos_mvmt_matrix], mvmt_matrix[MOTOR1ID][pos_mvmt_matrix]);
   //--Boucle for qui sert a faire avancer les moteurs jusqu'a temps que la destination voulue sera atteinte
     do
     {
@@ -126,39 +120,38 @@ double traveldistance[2][2] = {
       {
       //Déplacement de type linéaire (deux roues auront des valeur d'encodeurs croissantes)
       case direction:
-        if ((ReadEncodeur2 <= traveldistance [1] [0]) and (ReadEncodeur1 <= traveldistance [1] [1])) 
+        if ((ReadEncodeur2 <= traveldistance [1] [MOTOR2ID]) and (ReadEncodeur1 <= traveldistance [1] [MOTOR1ID])) 
         {
-          double pid2 = pid(ReadEncodeur2,ReadEncodeur1,ratio,MOTOR1ID);
           /*Serial.print("Pid 1 :");
           Serial.println(pid1);
           Serial.print("Pid 2:");
           Serial.println(pid2);
           */
           MOTOR_SetSpeed(MOTOR2ID, MotorSpeedInput);
-          MOTOR_SetSpeed(MOTOR1ID, (MotorSpeedInput + pid2)*ratio);
+          MOTOR_SetSpeed(MOTOR1ID, (MotorSpeedInput + pid(ReadEncodeur2,ReadEncodeur1,ratio,MOTOR1ID))*ratio);
         } else {
-          MOTOR_SetSpeed(MOTOR2ID, MotorSpeedInput/2);
-          MOTOR_SetSpeed(MOTOR1ID, MotorSpeedInput/2);
+          //MOTOR_SetSpeed(MOTOR2ID, MotorSpeedInput/2);
+          //MOTOR_SetSpeed(MOTOR1ID, MotorSpeedInput/2);
           destinationreached = true;
         } 
         break;
       //Déplacement de type angle (une roue va avoir une décroissance au niveau de l'encodeur)
       case angle:
-         if ((traveldistance [1] [0] > 0) and((ReadEncodeur2 < traveldistance [1] [0]) or (ReadEncodeur1 > traveldistance [1] [1])))    //REMPLACER PAR PID EVENTUELLEMENT
+         if ((traveldistance [1] [MOTOR2ID] > 0) and((ReadEncodeur2 < traveldistance [1] [MOTOR2ID]) or (ReadEncodeur1 > traveldistance [1] [MOTOR1ID])))    //REMPLACER PAR PID EVENTUELLEMENT
           {
             rotationspeed = MotorSpeedInputRotation;
             //Si il s'agit d'un angle positif (a rotation horaire)
             MOTOR_SetSpeed(MOTOR2ID, rotationspeed);
             MOTOR_SetSpeed(MOTOR1ID, (rotationspeed + pid(ReadEncodeur2,ReadEncodeur1,ratio,MOTOR1ID))/ratio);
-          } else if((traveldistance [1] [0] < 0) and((ReadEncodeur2 > traveldistance [1] [0]) or (ReadEncodeur1 < traveldistance [1] [1]))){
+          } else if((traveldistance [1] [MOTOR2ID] < 0) and((ReadEncodeur2 > traveldistance [1] [MOTOR2ID]) or (ReadEncodeur1 < traveldistance [1] [MOTOR1ID]))){
             //Si il s'agit d'un angle négatif (a rotation anti-horaire)
             rotationspeed = 0 - MotorSpeedInputRotation;
             MOTOR_SetSpeed(MOTOR2ID, rotationspeed);
             MOTOR_SetSpeed(MOTOR1ID,  (rotationspeed + pid(ReadEncodeur2,ReadEncodeur1,ratio,MOTOR1ID))/ratio);
           }else{
             //Destination atteinte, alors arrêter les moteurs
-            MOTOR_SetSpeed(MOTOR2ID, rotationspeed/2);
-            MOTOR_SetSpeed(MOTOR1ID, (rotationspeed*ratio)/2);
+            //MOTOR_SetSpeed(MOTOR2ID, rotationspeed/2);
+            //MOTOR_SetSpeed(MOTOR1ID, (rotationspeed*ratio)/2);
             destinationreached = true;
           }
         break;
@@ -177,22 +170,20 @@ double traveldistance[2][2] = {
     ENCODER_Reset(MOTOR2ID);
     ENCODER_Reset(MOTOR1ID);
     error_matrix[last_error][MOTOR2ID] = 0;
-    error_matrix[last_error][MOTOR1ID] = 0;
+    error_matrix[last_error][MOTOR1ID] = 0.0001;
     error_matrix[previous_integral][MOTOR2ID] = 0;
     error_matrix[previous_integral][MOTOR1ID] = 0;
     destinationreached = NULL;
-    delay(300);
+    delay(100);
   }
 //----------------------------------------------------------------------------------------------------------------------------//
 
 
 //-----------------------------------------------------Setup Robot------------------------------------------------------------//
-
   void setup(){
     BoardInit();
     delay(1000);
   }
-
 //----------------------------------------------------------------------------------------------------------------------------//
 
 
