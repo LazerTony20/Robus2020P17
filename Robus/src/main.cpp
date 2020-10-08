@@ -72,7 +72,7 @@ float traveldistance[2][2] = {
   }
 
 //------Fonction pour le PID--------------------------------------------------------------------------------------------------//
-  float pid(float objective,int32_t value, float ratioDist, int MOTORID){
+  float pid(float objective,int32_t value, float ratioDist, int16_t MOTORID){
     float pidValue = 0;
     float error = (objective-(value*ratioDist));
     /*Serial.print("Motor : ");
@@ -179,7 +179,7 @@ float traveldistance[2][2] = {
 
 //----------------------------------------------------------Main--------------------------------------------------------------//
 // put your main code here, to run repeatedly:
-void loop() {
+  void loop() {
   //Pour chaque mouvement dans ma matrice de mouvement ou i est la position dans ma matrice du mouvement actuel
   if (i < nb_mvmt){
     //Serial.println(i);
