@@ -13,43 +13,38 @@
 #include <Arduino.h>
 #include <librobus.h>
 #include <Valeurs.h>
-//----------------------------------------------------------------------------------------------------------------------------//
 
+//--------------------------------------------------------Constantes----------------------------------------------------------//
 #define nb_mvmt 23
 #define kp kpb
 #define kd 0.00002
 #define ki kib
 
 //--------------------------------------------Initialisation de variables globales--------------------------------------------//
-//Variables Globales
 int32_t ReadEncodeur2 = 0;
 int32_t ReadEncodeur1 = 0;
-int i = 0; //valeur pour la boucle du main
-double rotationspeed = 0;
-double ratio = 1;
-int last_error = 2;
-int previous_integral = 0;
-double error_matrix[3][2] = {
+int32_t i = 0;    //valeur pour la boucle du main
+float rotationspeed = 0;
+float ratio = 0;
+float error_matrix[3][2] = {
   {MOTOR1ID,MOTOR2ID},
   {0,0},
   {0.0001,0}
 };
-//0 = valeur de distance (en cm) et 1 valeur de rotation ( en degrées par rapport au centre avant du robot) et 2 une courbe (premiere valeur = distance et 2e Tangeante a distance)
-double mvmt_matrix[3][nb_mvmt] = {
+float mvmt_matrix[3][nb_mvmt] = {
   {direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction},
   {104.5,-deg45,62,deg90,194.5,-deg45,97,-deg90,90,deg90,122.5,deg180,122.5,-deg90,90,deg90,97,deg45,194.5,-deg90,62,deg45,104.5},
   {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 };
 //Matrice utilisée pour stocker le prochain mouvement (en ticks de rotation)
-double traveldistance[2][2] = {
+float traveldistance[2][2] = {
   {MOTOR1ID,MOTOR2ID},
   {0,0}};
-//----------------------------------------------------------------------------------------------------------------------------//
 
-//---------------------------------------------------------Fonctions----------------------------------------------------------//
+//=========================================================Fonctions==========================================================//
 
-//---Fonction pour calculer le nombre de ticks à atteindre par moteur selon le type de déplacement
-  void calculatetravel(int traveltype, double travelvalue){
+//---Fonction pour calculer le nombre de ticks à atteindre par moteur selon le type de déplacement----------------------------//
+  void calculatetravel(int traveltype, float travelvalue){
   traveldistance [1] [MOTOR2ID] = {0};
   traveldistance [1] [MOTOR1ID] = {0};
   //Serial.println("Calculate Travel where traveltype is :");
@@ -62,7 +57,7 @@ double traveldistance[2][2] = {
           break;
       case angle:
           // Si la type de valeur est un angle
-          traveldistance [1] [MOTOR2ID] = calculatewheelticks((double)((travelvalue/360)*CIRCUMFERENCEWHEELZ));
+          traveldistance [1] [MOTOR2ID] = calculatewheelticks((float)((travelvalue/360)*CIRCUMFERENCEWHEELZ));
           traveldistance [1] [MOTOR1ID] = 0 - traveldistance [1] [MOTOR2ID];
           break;
       case curve:
@@ -76,10 +71,10 @@ double traveldistance[2][2] = {
     ratio = calculateRatio(traveldistance [1] [MOTOR2ID],traveldistance [1] [MOTOR1ID]);
   }
 
-//Fonction pour le PID
-  double pid(double objective,int32_t value, double ratioDist, int MOTORID){
-    double pidValue = 0;
-    double error = (objective-(value*ratioDist));
+//------Fonction pour le PID--------------------------------------------------------------------------------------------------//
+  float pid(float objective,int32_t value, float ratioDist, int MOTORID){
+    float pidValue = 0;
+    float error = (objective-(value*ratioDist));
     /*Serial.print("Motor : ");
     Serial.println(MOTORID);
     Serial.print("VALEUR : ");
@@ -91,9 +86,8 @@ double traveldistance[2][2] = {
     Serial.print("last error :");
     Serial.println(error_matrix[last_error][MOTORID]);
     */
-    double integral = error_matrix[previous_integral][MOTORID] + error;
-    double derivative = (error - error_matrix[last_error][MOTORID])/deltaT;
-    //int derivative = 0;
+    float integral = error_matrix[previous_integral][MOTORID] + error;
+    float derivative = (error - error_matrix[last_error][MOTORID])/deltaT;
     pidValue = (kp*error + kd*derivative + ki*integral);
     error_matrix[last_error][MOTORID] = error;
     error_matrix[previous_integral][MOTORID] = integral;
@@ -102,7 +96,7 @@ double traveldistance[2][2] = {
     //moyenne des deux distances multipliées par leur ratio
   }
 
-//---Fonction pour faire bouger le robot selon le type de mouvement jusqua sa destination
+//------Fonction pour faire bouger le robot selon le type de mouvement jusqua sa destination----------------------------------//
   void move(int pos_mvmt_matrix){
     bool destinationreached = false;
     /*Serial.println("inside move with position :");
@@ -176,16 +170,12 @@ double traveldistance[2][2] = {
     destinationreached = NULL;
     delay(100);
   }
-//----------------------------------------------------------------------------------------------------------------------------//
-
 
 //-----------------------------------------------------Setup Robot------------------------------------------------------------//
   void setup(){
     BoardInit();
     delay(1000);
   }
-//----------------------------------------------------------------------------------------------------------------------------//
-
 
 //----------------------------------------------------------Main--------------------------------------------------------------//
 // put your main code here, to run repeatedly:
@@ -201,4 +191,3 @@ void loop() {
   //Augmenter i pour la prochaine passe afin de faire le prochain mouvement
   i = i + 1;  
 }
-//----------------------------------------------------------------------------------------------------------------------------//

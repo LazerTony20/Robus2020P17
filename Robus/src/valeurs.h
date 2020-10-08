@@ -10,6 +10,8 @@
 #define CIRCUMFERENCEWHEELZ DIAMETERWHEELZ*PI
 #define MOTOR2ID LEFT
 #define MOTOR1ID RIGHT
+#define last_error 2            //Position de la derniere erreur dans ma matrice d'erreur
+#define previous_integral 1     //Position de ma somme dans ma matrice d'erreur
 #define kpa 0.0002
 #define kia 0.00002
 #define kpb 0.0005
