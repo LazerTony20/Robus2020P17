@@ -28,7 +28,7 @@ const double kda = 0.0000001;
 const double kia = 0.000001;
 const double kpb = 0.0002;
 const double kdb = 0.0000001;
-const double kib = 0.00000125;
+const double kib = 0.00000125;      //MODIFIER PLUS GROS
 const int deltaT = 25; //en milisecondes
 //----------------------------------------------------------------------------------------------------------------------------//
 
@@ -129,8 +129,10 @@ double traveldistance[2][2] = {
     Serial.print("last error :");
     Serial.println(error_matrix[last_error][MOTORID]);
     */
-    double integral = error_matrix[previous_integral][MOTORID] + (error*deltaT);
-    double derivative = (error - error_matrix[last_error][MOTORID])/deltaT;
+    //double integral = error_matrix[previous_integral][MOTORID] + (error*deltaT);
+    double integral = error_matrix[previous_integral][MOTORID] + error;
+    //double derivative = (error - error_matrix[last_error][MOTORID])/deltaT;
+    double derivative = 0;
     pidValue = (kp*error + kd*derivative + ki*integral);
     error_matrix[last_error][MOTORID] = error;
     error_matrix[previous_integral][MOTORID] = integral;
@@ -178,7 +180,7 @@ double traveldistance[2][2] = {
           Serial.print("Pid 2:");
           Serial.println(pid2);
           MOTOR_SetSpeed(MOTOR2ID, MotorSpeedInput);
-          MOTOR_SetSpeed(MOTOR1ID, MotorSpeedInput + pid2);
+          MOTOR_SetSpeed(MOTOR1ID, (MotorSpeedInput + pid2)*ratio);
         } else {
           MOTOR_SetSpeed(MOTOR2ID, 0);
           MOTOR_SetSpeed(MOTOR1ID, 0);
@@ -189,18 +191,19 @@ double traveldistance[2][2] = {
       case 1:
          if ((traveldistance [1] [0] > 0) and((ReadEncodeur2 < traveldistance [1] [0]) or (ReadEncodeur1 > traveldistance [1] [1])))    //REMPLACER PAR PID EVENTUELLEMENT
           {
-            
+            double rotationspeed = MotorSpeedInputRotation;
             //Si il s'agit d'un angle positif (a rotation horaire)
             
             //MOTOR_SetSpeed(MOTOR2ID, MotorSpeedInputRotation + pid(moyenneEncodeurs,ReadEncodeur2,1,MOTOR2ID));
-            MOTOR_SetSpeed(MOTOR2ID, MotorSpeedInputRotation);
+            MOTOR_SetSpeed(MOTOR2ID, rotationspeed);
             //MOTOR_SetSpeed(MOTOR1ID, 0- MotorSpeedInputRotation - ratio*pid(moyenneEncodeurs,ReadEncodeur1,ratio,MOTOR1ID));
-            MOTOR_SetSpeed(MOTOR1ID, 0- MotorSpeedInputRotation + ratio*pid(ReadEncodeur2,ReadEncodeur1,ratio,MOTOR1ID));
+            MOTOR_SetSpeed(MOTOR1ID, (rotationspeed + pid(ReadEncodeur2,ReadEncodeur1,ratio,MOTOR1ID))/ratio);
           } else if((traveldistance [1] [0] < 0) and((ReadEncodeur2 > traveldistance [1] [0]) or (ReadEncodeur1 < traveldistance [1] [1]))){
             //Si il s'agit d'un angle négatif (a rotation anti-horaire)
-            MOTOR_SetSpeed(MOTOR2ID, 0 - MotorSpeedInputRotation);
+            double rotationspeed = 0 - MotorSpeedInputRotation;
+            MOTOR_SetSpeed(MOTOR2ID, rotationspeed);
             //MOTOR_SetSpeed(MOTOR2ID, 0 - MotorSpeedInputRotation - pid(moyenneEncodeurs,ReadEncodeur2,1,MOTOR2ID));
-            MOTOR_SetSpeed(MOTOR1ID, MotorSpeedInputRotation + ratio*pid(ReadEncodeur2,ReadEncodeur1,ratio,MOTOR1ID));
+            MOTOR_SetSpeed(MOTOR1ID,  (rotationspeed + pid(ReadEncodeur2,ReadEncodeur1,ratio,MOTOR1ID))/ratio);
             //MOTOR_SetSpeed(MOTOR1ID, MotorSpeedInputRotation + ratio*pid(moyenneEncodeurs,ReadEncodeur1,ratio,MOTOR1ID));
           }else{
             //Destination atteinte, alors arrêter les moteurs
