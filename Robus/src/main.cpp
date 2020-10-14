@@ -68,12 +68,8 @@ float traveldistance[2][2] = {
       case curve:
           //Si le type de valeur est une courbe
           rayon = (((travelvalue / 2) * (travelvalue / 2)) / absoluteValue(travelDifferentiel));
-          //Serial.println("RAYON IS:");
-          //Serial.println(rayon);
           longeurT = rayon - absoluteValue(travelDifferentiel);
           angleMilieu = ((acos((longeurT / rayon))*2)*180)/PI;
-          //Serial.println(" ANGLE MILIEU is :");
-          //Serial.println(angleMilieu);
           if (travelDifferentiel > 0)
           {
             traveldistance[1][MOTOR2ID] = calculatewheelticks((float)((angleMilieu * (((rayon + RADIUSWHEELZ) * 2) * PI)) / 360));
@@ -87,7 +83,6 @@ float traveldistance[2][2] = {
           {
             traveldistance[1][MOTOR2ID] = calculatewheelticks((float)((angleMilieu * (((rayon - RADIUSWHEELZ) * 2) * PI)) / 360));
             traveldistance[1][MOTOR1ID] = calculatewheelticks((float)((angleMilieu * (((rayon + RADIUSWHEELZ) * 2) * PI)) / 360));
-            //Serial.println("I'M IN 2");
           }
         break;
 
@@ -180,21 +175,11 @@ float traveldistance[2][2] = {
         break;
         //Déplacement de type courbe (les deux roues irons dans la même direction mais pas au même rytme)
         case curve:
-        Serial.println("Read Encodeur Gauche");
-        Serial.println(ReadEncodeur2);
-        Serial.println("Read Encodeur Drettte");
-        Serial.println(ReadEncodeur1);
-        Serial.println("distance gauche");
-        Serial.println(traveldistance [1] [MOTOR2ID]);
-        Serial.println("distance drette");
-        Serial.println(traveldistance [1] [MOTOR1ID]);
         if ((ReadEncodeur2 <= traveldistance [1] [MOTOR2ID]) or (ReadEncodeur1 <= traveldistance [1] [MOTOR1ID])) 
         {
-          Serial.println("CURVING LIKE A MANIAC");
           MOTOR_SetSpeed(MOTOR2ID, MotorSpeedInput);
           MOTOR_SetSpeed(MOTOR1ID, (MotorSpeedInput*ratio + pid(ReadEncodeur2,ReadEncodeur1,ratio,MOTOR1ID))*ratio);
         } else {
-          Serial.println("CURVE DONE");
           destinationreached = true;
         }
         break;

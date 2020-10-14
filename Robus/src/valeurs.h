@@ -26,7 +26,7 @@
 #define angle 1                  //Si il s'agit d'un mouvement de type rotation
 #define curve 2                  //Si il s'agit d'un mouvement de type courbe 
 #define deg45 45
-#define deg90 90
+#define deg90 89
 #define deg180 180
 //----------------------------------------------------------------------------------------------------------------------------//
 
