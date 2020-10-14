@@ -32,9 +32,9 @@ float error_matrix[3][2] = {
   {0.0001,0}
 };
 float mvmt_matrix[3][nb_mvmt] = {
-  {direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction},
-  {104.5,-deg45,62,deg90,194.5,-deg45,97,-deg90,90,deg90,122.5,deg180,122.5,-deg90,90,deg90,97,deg45,194.5,-deg90,62,deg45,104.5},
-  {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+  {direction,curve,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction},
+  {104.5,50,62,deg90,194.5,-deg45,97,-deg90,90,deg90,122.5,deg180,122.5,-deg90,90,deg90,97,deg45,194.5,-deg90,62,deg45,104.5},
+  {0,15,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 };
 //Matrice utilisée pour stocker le prochain mouvement (en ticks de rotation)
 float traveldistance[2][2] = {
@@ -44,11 +44,13 @@ float traveldistance[2][2] = {
 //=========================================================Fonctions==========================================================//
 
 //---Fonction pour calculer le nombre de ticks à atteindre par moteur selon le type de déplacement----------------------------//
-  void calculatetravel(int traveltype, float travelvalue){
+  void calculatetravel(int traveltype, float travelvalue, float travelDifferentiel){
   traveldistance [1] [MOTOR2ID] = {0};
   traveldistance [1] [MOTOR1ID] = {0};
-  //Serial.println("Calculate Travel where traveltype is :");
-  //Serial.print(traveltype);
+  Serial.println("Calculate Travel where traveltype is :");
+  Serial.print(traveltype);
+  Serial.println("Travel Value :");
+  Serial.print(traveltype);
   switch (traveltype){
       case direction:
           // Si le type de valeur est une distance
@@ -62,8 +64,22 @@ float traveldistance[2][2] = {
           break;
       case curve:
           //Si le type de valeur est une courbe
-
+          float rayon = (((travelvalue / 2) * (travelvalue / 2)) / travelDifferentiel);
+          float longeurT = rayon - travelDifferentiel;
+          float angleMilieu = 2 * (acos(longeurT / rayon));
+          //Serial.print(angleMilieu);
+          if (travelvalue > 0)
+          {
+            traveldistance[1][MOTOR2ID] = calculatewheelticks((float)((angleMilieu * (((rayon + RADIUSWHEELZ) * 2) * PI)) / 360));
+            traveldistance[1][MOTOR1ID] = calculatewheelticks((float)((angleMilieu * (((rayon - RADIUSWHEELZ) * 2) * PI)) / 360));
+          }
+          else
+          {
+            traveldistance[1][MOTOR2ID] = calculatewheelticks((float)((angleMilieu * (((rayon - RADIUSWHEELZ) * 2) * PI)) / 360));
+            traveldistance[1][MOTOR1ID] = calculatewheelticks((float)((angleMilieu * (((rayon + RADIUSWHEELZ) * 2) * PI)) / 360));
+          }
         break;
+
       default:
         //Serial.println("Calculate Travel case default");
           break;
@@ -104,7 +120,7 @@ float traveldistance[2][2] = {
     Serial.println("matrix value at this position :");
     Serial.println(mvmt_matrix[0][pos_mvmt_matrix]);
     */
-    calculatetravel((int)mvmt_matrix[MOTOR2ID][pos_mvmt_matrix], mvmt_matrix[MOTOR1ID][pos_mvmt_matrix]);
+    calculatetravel((int)mvmt_matrix[TypeTravel][pos_mvmt_matrix], mvmt_matrix[ValueTravel][pos_mvmt_matrix], mvmt_matrix[AngleDifferencial][pos_mvmt_matrix]);
   //--Boucle for qui sert a faire avancer les moteurs jusqu'a temps que la destination voulue sera atteinte
     do
     {
@@ -151,7 +167,20 @@ float traveldistance[2][2] = {
         break;
         //Déplacement de type courbe (les deux roues irons dans la même direction mais pas au même rytme)
         case curve:
-
+          if ((ReadEncodeur2 <= traveldistance [1] [MOTOR2ID]) and (ReadEncodeur1 <= traveldistance [1] [MOTOR1ID])) 
+        {
+          /*Serial.print("Pid 1 :");
+          Serial.println(pid1);
+          Serial.print("Pid 2:");
+          Serial.println(pid2);
+          */
+          MOTOR_SetSpeed(MOTOR2ID, MotorSpeedInput);
+          MOTOR_SetSpeed(MOTOR1ID, (MotorSpeedInput + pid(ReadEncodeur2,ReadEncodeur1,ratio,MOTOR1ID))*ratio);
+        } else {
+          //MOTOR_SetSpeed(MOTOR2ID, MotorSpeedInput/2);
+          //MOTOR_SetSpeed(MOTOR1ID, MotorSpeedInput/2);
+          destinationreached = true;
+        }
         break;
       default:
         break;
