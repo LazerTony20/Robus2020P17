@@ -33,8 +33,8 @@ float error_matrix[3][2] = {
 };
 float mvmt_matrix[3][nb_mvmt] = {
   {direction,curve,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction},
-  {104.5,50,62,deg90,194.5,-deg45,97,-deg90,90,deg90,122.5,deg180,122.5,-deg90,90,deg90,97,deg45,194.5,-deg90,62,deg45,104.5},
-  {0,15,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+  {104.5,150,62,deg90,194.5,-deg45,97,-deg90,90,deg90,122.5,deg180,122.5,-deg90,90,deg90,97,deg45,194.5,-deg90,62,deg45,104.5},
+  {0,-30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 };
 //Matrice utilisée pour stocker le prochain mouvement (en ticks de rotation)
 float traveldistance[2][2] = {
@@ -47,10 +47,13 @@ float traveldistance[2][2] = {
   void calculatetravel(int traveltype, float travelvalue, float travelDifferentiel){
   traveldistance [1] [MOTOR2ID] = {0};
   traveldistance [1] [MOTOR1ID] = {0};
-  Serial.println("Calculate Travel where traveltype is :");
+  float rayon = 0;
+  float longeurT = 0;
+  float angleMilieu = 0;
+  /*Serial.println("Calculate Travel where traveltype is :");
   Serial.print(traveltype);
   Serial.println("Travel Value :");
-  Serial.print(traveltype);
+  Serial.print(traveltype);*/
   switch (traveltype){
       case direction:
           // Si le type de valeur est une distance
@@ -64,19 +67,27 @@ float traveldistance[2][2] = {
           break;
       case curve:
           //Si le type de valeur est une courbe
-          float rayon = (((travelvalue / 2) * (travelvalue / 2)) / travelDifferentiel);
-          float longeurT = rayon - travelDifferentiel;
-          float angleMilieu = 2 * (acos(longeurT / rayon));
-          //Serial.print(angleMilieu);
-          if (travelvalue > 0)
+          rayon = (((travelvalue / 2) * (travelvalue / 2)) / absoluteValue(travelDifferentiel));
+          //Serial.println("RAYON IS:");
+          //Serial.println(rayon);
+          longeurT = rayon - absoluteValue(travelDifferentiel);
+          angleMilieu = ((acos((longeurT / rayon))*2)*180)/PI;
+          //Serial.println(" ANGLE MILIEU is :");
+          //Serial.println(angleMilieu);
+          if (travelDifferentiel > 0)
           {
             traveldistance[1][MOTOR2ID] = calculatewheelticks((float)((angleMilieu * (((rayon + RADIUSWHEELZ) * 2) * PI)) / 360));
             traveldistance[1][MOTOR1ID] = calculatewheelticks((float)((angleMilieu * (((rayon - RADIUSWHEELZ) * 2) * PI)) / 360));
+            /*Serial.println("I'M IN");
+            Serial.println(traveldistance[1][MOTOR2ID]);
+            Serial.println(traveldistance[1][MOTOR1ID]);
+            */
           }
           else
           {
             traveldistance[1][MOTOR2ID] = calculatewheelticks((float)((angleMilieu * (((rayon - RADIUSWHEELZ) * 2) * PI)) / 360));
             traveldistance[1][MOTOR1ID] = calculatewheelticks((float)((angleMilieu * (((rayon + RADIUSWHEELZ) * 2) * PI)) / 360));
+            //Serial.println("I'M IN 2");
           }
         break;
 
@@ -122,6 +133,8 @@ float traveldistance[2][2] = {
     */
     calculatetravel((int)mvmt_matrix[TypeTravel][pos_mvmt_matrix], mvmt_matrix[ValueTravel][pos_mvmt_matrix], mvmt_matrix[AngleDifferencial][pos_mvmt_matrix]);
   //--Boucle for qui sert a faire avancer les moteurs jusqu'a temps que la destination voulue sera atteinte
+    ENCODER_Reset(MOTOR2ID);
+    ENCODER_Reset(MOTOR1ID);
     do
     {
       ReadEncodeur2 = ENCODER_Read(MOTOR2ID);
@@ -167,18 +180,21 @@ float traveldistance[2][2] = {
         break;
         //Déplacement de type courbe (les deux roues irons dans la même direction mais pas au même rytme)
         case curve:
-          if ((ReadEncodeur2 <= traveldistance [1] [MOTOR2ID]) and (ReadEncodeur1 <= traveldistance [1] [MOTOR1ID])) 
+        Serial.println("Read Encodeur Gauche");
+        Serial.println(ReadEncodeur2);
+        Serial.println("Read Encodeur Drettte");
+        Serial.println(ReadEncodeur1);
+        Serial.println("distance gauche");
+        Serial.println(traveldistance [1] [MOTOR2ID]);
+        Serial.println("distance drette");
+        Serial.println(traveldistance [1] [MOTOR1ID]);
+        if ((ReadEncodeur2 <= traveldistance [1] [MOTOR2ID]) or (ReadEncodeur1 <= traveldistance [1] [MOTOR1ID])) 
         {
-          /*Serial.print("Pid 1 :");
-          Serial.println(pid1);
-          Serial.print("Pid 2:");
-          Serial.println(pid2);
-          */
+          Serial.println("CURVING LIKE A MANIAC");
           MOTOR_SetSpeed(MOTOR2ID, MotorSpeedInput);
-          MOTOR_SetSpeed(MOTOR1ID, (MotorSpeedInput + pid(ReadEncodeur2,ReadEncodeur1,ratio,MOTOR1ID))*ratio);
+          MOTOR_SetSpeed(MOTOR1ID, (MotorSpeedInput*ratio + pid(ReadEncodeur2,ReadEncodeur1,ratio,MOTOR1ID))*ratio);
         } else {
-          //MOTOR_SetSpeed(MOTOR2ID, MotorSpeedInput/2);
-          //MOTOR_SetSpeed(MOTOR1ID, MotorSpeedInput/2);
+          Serial.println("CURVE DONE");
           destinationreached = true;
         }
         break;
@@ -197,7 +213,7 @@ float traveldistance[2][2] = {
     error_matrix[previous_integral][MOTOR2ID] = 0;
     error_matrix[previous_integral][MOTOR1ID] = 0;
     destinationreached = NULL;
-    delay(100);
+    delay(500);
   }
 
 //-----------------------------------------------------Setup Robot------------------------------------------------------------//
