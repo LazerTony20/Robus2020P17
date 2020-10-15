@@ -6,8 +6,12 @@
 #define WHEELTICKS 3200
 #define DIAMETERWHEELZ 19       //Distance entre mes deux roues (MESURÉE AVEC UNE RÈGLE) 19
 #define RADIUSWHEELZ DIAMETERWHEELZ/2
-#define MotorSpeedInput 0.5
-#define MotorSpeedInputRotation 0.25
+#define MotorSpeedInputA 0.8
+#define MotorSpeedInputB 0.7
+#define MotorSpeedInputRotationA 0.45
+#define MotorSpeedInputRotationB 0.3
+#define MotorSpeedInputPeek 0.3
+#define MotorSpeedInputRotationPeek 0.4
 #define WHEELCIRCUMFERENCE WHEELDIAMETER*PI
 #define CIRCUMFERENCEWHEELZ DIAMETERWHEELZ*PI
 #define MOTOR2ID LEFT
@@ -17,17 +21,19 @@
 #define AngleDifferencial 2
 #define last_error 2            //Position de la derniere erreur dans ma matrice d'erreur
 #define previous_integral 1     //Position de ma somme dans ma matrice d'erreur
-#define kpa 0.0002
-#define kia 0.00002
+#define kpa 0.00042
+#define kda 0.000002
+#define kia 0.000073125
 #define kpb 0.0005
-#define kib 0.00001              //MODIFIER PLUS GROS
+#define kdb 0.00002
+#define kib 0.0000125              //MODIFIER PLUS GROS
 #define deltaT 25                //en milisecondes
 #define direction 0              //Si il s'agit d'un mouvement de type linéaire
 #define angle 1                  //Si il s'agit d'un mouvement de type rotation
 #define curve 2                  //Si il s'agit d'un mouvement de type courbe 
 #define deg45 45
-#define deg90 89
-#define deg180 180
+#define deg90 90
+#define deg180 179.5
 //----------------------------------------------------------------------------------------------------------------------------//
 
 //---------------------------------------------------------Fonctions----------------------------------------------------------//
@@ -47,4 +53,20 @@
   float calculatewheelticks(float distance){
     //Serial.println("Calculatewheelticks");
     return ((distance*WHEELTICKS)/(WHEELCIRCUMFERENCE));
+  }
+
+  float calculateAcceleration(float currentDist, float distDest,float baseSpeed, float peekPoint){
+    float calculatedSpeed = 0;
+    float peekDistance = distDest*peekPoint;
+    if(currentDist < peekDistance){
+      calculatedSpeed = (currentDist/peekDistance)*baseSpeed;
+    } else if(currentDist > distDest-peekDistance){
+      calculatedSpeed = ((distDest-currentDist)/peekDistance)*baseSpeed;
+    }else{
+      return baseSpeed;
+    }
+    if(calculatedSpeed < baseSpeed/8){
+      calculatedSpeed = baseSpeed/8;
+    }
+    return calculatedSpeed;
   }

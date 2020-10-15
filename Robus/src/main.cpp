@@ -16,9 +16,11 @@
 
 //--------------------------------------------------------Constantes----------------------------------------------------------//
 #define nb_mvmt 23
-#define kp kpb
-#define kd 0.00002
-#define ki kib
+#define MotorSpeedInputRotation MotorSpeedInputRotationA
+#define MotorSpeedInput MotorSpeedInputA
+#define kp kpa
+#define kd kda
+#define ki kia
 
 //--------------------------------------------Initialisation de variables globales--------------------------------------------//
 int32_t ReadEncodeur2 = 0;
@@ -32,9 +34,9 @@ float error_matrix[3][2] = {
   {0.0001,0}
 };
 float mvmt_matrix[3][nb_mvmt] = {
-  {direction,curve,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction},
-  {104.5,150,62,deg90,194.5,-deg45,97,-deg90,90,deg90,122.5,deg180,122.5,-deg90,90,deg90,97,deg45,194.5,-deg90,62,deg45,104.5},
-  {0,-30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+  {direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction},
+  {104.5,-deg45,62,deg90,187.5,-deg45,91,-deg90,90,deg90,122.5,deg180,122.5,-deg90,91,deg90,92,deg45,187.5,-deg90,62,deg45,104.5},
+  {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 };
 //Matrice utilisée pour stocker le prochain mouvement (en ticks de rotation)
 float traveldistance[2][2] = {
@@ -97,17 +99,6 @@ float traveldistance[2][2] = {
   float pid(float objective,int32_t value, float ratioDist, int16_t MOTORID){
     float pidValue = 0;
     float error = (objective-(value*ratioDist));
-    /*Serial.print("Motor : ");
-    Serial.println(MOTORID);
-    Serial.print("VALEUR : ");
-    Serial.println(readEncodeurLive);
-    Serial.print("Erreur : ");
-    Serial.println(error);
-    Serial.print("ratio : ");
-    Serial.println(ratio);
-    Serial.print("last error :");
-    Serial.println(error_matrix[last_error][MOTORID]);
-    */
     float integral = error_matrix[previous_integral][MOTORID] + error;
     float derivative = (error - error_matrix[last_error][MOTORID])/deltaT;
     pidValue = (kp*error + kd*derivative + ki*integral);
@@ -140,13 +131,9 @@ float traveldistance[2][2] = {
       case direction:
         if ((ReadEncodeur2 <= traveldistance [1] [MOTOR2ID]) and (ReadEncodeur1 <= traveldistance [1] [MOTOR1ID])) 
         {
-          /*Serial.print("Pid 1 :");
-          Serial.println(pid1);
-          Serial.print("Pid 2:");
-          Serial.println(pid2);
-          */
-          MOTOR_SetSpeed(MOTOR2ID, MotorSpeedInput);
-          MOTOR_SetSpeed(MOTOR1ID, (MotorSpeedInput + pid(ReadEncodeur2,ReadEncodeur1,ratio,MOTOR1ID))*ratio);
+          rotationspeed = calculateAcceleration(ReadEncodeur2,traveldistance [1] [MOTOR2ID],MotorSpeedInput,MotorSpeedInputPeek);
+          MOTOR_SetSpeed(MOTOR2ID, rotationspeed);
+          MOTOR_SetSpeed(MOTOR1ID, (rotationspeed + pid(ReadEncodeur2,ReadEncodeur1,ratio,MOTOR1ID))*ratio);
         } else {
           //MOTOR_SetSpeed(MOTOR2ID, MotorSpeedInput/2);
           //MOTOR_SetSpeed(MOTOR1ID, MotorSpeedInput/2);
@@ -155,21 +142,23 @@ float traveldistance[2][2] = {
         break;
       //Déplacement de type angle (une roue va avoir une décroissance au niveau de l'encodeur)
       case angle:
-         if ((traveldistance [1] [MOTOR2ID] > 0) and((ReadEncodeur2 < traveldistance [1] [MOTOR2ID]) or (ReadEncodeur1 > traveldistance [1] [MOTOR1ID])))    //REMPLACER PAR PID EVENTUELLEMENT
-          {
-            rotationspeed = MotorSpeedInputRotation;
+         if ((traveldistance [1] [MOTOR2ID] > 0) and((ReadEncodeur2 < traveldistance [1] [MOTOR2ID]) and (ReadEncodeur1 > traveldistance [1] [MOTOR1ID])))
+         {
             //Si il s'agit d'un angle positif (a rotation horaire)
+            rotationspeed = calculateAcceleration(ReadEncodeur2,traveldistance [1] [MOTOR2ID],MotorSpeedInputRotation,MotorSpeedInputRotationPeek);
             MOTOR_SetSpeed(MOTOR2ID, rotationspeed);
-            MOTOR_SetSpeed(MOTOR1ID, (rotationspeed + pid(ReadEncodeur2,ReadEncodeur1,ratio,MOTOR1ID))/ratio);
-          } else if((traveldistance [1] [MOTOR2ID] < 0) and((ReadEncodeur2 > traveldistance [1] [MOTOR2ID]) or (ReadEncodeur1 < traveldistance [1] [MOTOR1ID]))){
+            
+            MOTOR_SetSpeed(MOTOR1ID, ((rotationspeed + pid(ReadEncodeur2,ReadEncodeur1,ratio,MOTOR1ID))*ratio));
+          } 
+          else if((traveldistance [1] [MOTOR2ID] < 0) and((ReadEncodeur2 > traveldistance [1] [MOTOR2ID]) and (ReadEncodeur1 < traveldistance [1] [MOTOR1ID])))
+          {
             //Si il s'agit d'un angle négatif (a rotation anti-horaire)
-            rotationspeed = 0 - MotorSpeedInputRotation;
+            rotationspeed = 0 - calculateAcceleration(absoluteValue(ReadEncodeur2),absoluteValue(traveldistance [1] [MOTOR2ID]), MotorSpeedInputRotation,MotorSpeedInputRotationPeek);
             MOTOR_SetSpeed(MOTOR2ID, rotationspeed);
-            MOTOR_SetSpeed(MOTOR1ID,  (rotationspeed + pid(ReadEncodeur2,ReadEncodeur1,ratio,MOTOR1ID))/ratio);
-          }else{
-            //Destination atteinte, alors arrêter les moteurs
-            //MOTOR_SetSpeed(MOTOR2ID, rotationspeed/2);
-            //MOTOR_SetSpeed(MOTOR1ID, (rotationspeed*ratio)/2);
+            MOTOR_SetSpeed(MOTOR1ID, (rotationspeed + pid(ReadEncodeur2,ReadEncodeur1,ratio,MOTOR1ID))*ratio);
+          }
+          else
+          {
             destinationreached = true;
           }
         break;
@@ -193,12 +182,13 @@ float traveldistance[2][2] = {
     MOTOR_SetSpeed(MOTOR1ID, 0);
     ENCODER_Reset(MOTOR2ID);
     ENCODER_Reset(MOTOR1ID);
+    rotationspeed = 0;
     error_matrix[last_error][MOTOR2ID] = 0;
     error_matrix[last_error][MOTOR1ID] = 0.0001;
     error_matrix[previous_integral][MOTOR2ID] = 0;
     error_matrix[previous_integral][MOTOR1ID] = 0;
     destinationreached = NULL;
-    delay(500);
+    delay(100);
   }
 
 //-----------------------------------------------------Setup Robot------------------------------------------------------------//
