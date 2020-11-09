@@ -34,8 +34,8 @@ float error_matrix[3][2] = {
   {0.0001,0}
 };
 float mvmt_matrix[3][nb_mvmt] = {
-  {direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction},
-  {104.5,-deg45,62,deg90,187.5,-deg45,91,-deg90,90,deg90,122.5,deg180,122.5,-deg90,91,deg90,92,deg45,187.5,-deg90,62,deg45,104.5},
+  {direction,angle,direction,angle,direction,couleur,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction,angle,direction},
+  {41.5,deg90,30,-deg90,42,0,91,-deg90,90,deg90,122.5,deg180,122.5,-deg90,91,deg90,92,deg45,187.5,-deg90,62,deg45,104.5},
   {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 };
 //Matrice utilisée pour stocker le prochain mouvement (en ticks de rotation)

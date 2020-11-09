@@ -31,6 +31,7 @@
 #define direction 0              //Si il s'agit d'un mouvement de type linéaire
 #define angle 1                  //Si il s'agit d'un mouvement de type rotation
 #define curve 2                  //Si il s'agit d'un mouvement de type courbe 
+#define couleur 3
 #define deg45 45
 #define deg90 90
 #define deg180 179.5
