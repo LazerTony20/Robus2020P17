@@ -52,10 +52,6 @@ float traveldistance[2][2] = {
   float rayon = 0;
   float longeurT = 0;
   float angleMilieu = 0;
-  /*Serial.println("Calculate Travel where traveltype is :");
-  Serial.print(traveltype);
-  Serial.println("Travel Value :");
-  Serial.print(traveltype);*/
   switch (traveltype){
       case direction:
           // Si le type de valeur est une distance
@@ -76,10 +72,6 @@ float traveldistance[2][2] = {
           {
             traveldistance[1][MOTOR2ID] = calculatewheelticks((float)((angleMilieu * (((rayon + RADIUSWHEELZ) * 2) * PI)) / 360));
             traveldistance[1][MOTOR1ID] = calculatewheelticks((float)((angleMilieu * (((rayon - RADIUSWHEELZ) * 2) * PI)) / 360));
-            /*Serial.println("I'M IN");
-            Serial.println(traveldistance[1][MOTOR2ID]);
-            Serial.println(traveldistance[1][MOTOR1ID]);
-            */
           }
           else
           {
@@ -87,7 +79,6 @@ float traveldistance[2][2] = {
             traveldistance[1][MOTOR1ID] = calculatewheelticks((float)((angleMilieu * (((rayon + RADIUSWHEELZ) * 2) * PI)) / 360));
           }
         break;
-
       default:
         //Serial.println("Calculate Travel case default");
           break;
@@ -112,12 +103,8 @@ float traveldistance[2][2] = {
 //------Fonction pour faire bouger le robot selon le type de mouvement jusqua sa destination----------------------------------//
   void move(int pos_mvmt_matrix){
     bool destinationreached = false;
-    /*Serial.println("inside move with position :");
-    Serial.println(pos_mvmt_matrix);
-    Serial.println("matrix value at this position :");
-    Serial.println(mvmt_matrix[0][pos_mvmt_matrix]);
-    */
     calculatetravel((int)mvmt_matrix[TypeTravel][pos_mvmt_matrix], mvmt_matrix[ValueTravel][pos_mvmt_matrix], mvmt_matrix[AngleDifferencial][pos_mvmt_matrix]);
+  
   //--Boucle for qui sert a faire avancer les moteurs jusqu'a temps que la destination voulue sera atteinte
     ENCODER_Reset(MOTOR2ID);
     ENCODER_Reset(MOTOR1ID);
