@@ -66,11 +66,12 @@ void tourner(int sens, float angle)
       distancelu = ENCODER_Read(0);
     }
   }
-  MOTOR_SetSpeed(1,0);
-  MOTOR_SetSpeed(0,0);
+ 
+  MOTOR_SetSpeed(0, 0);
+  MOTOR_SetSpeed(1, 0);
+  delay(100);
   ENCODER_Reset(0);
   ENCODER_Reset(1);
-  delay(500);
 }
 void ligneDroite(float distance)
 {
@@ -81,13 +82,23 @@ void ligneDroite(float distance)
   float ki = 0.00003;
   float errorp = 0;
   float errori = 0;
-  ;
+  
   float speedright = 0.5;
   float speedleft = 0.5;
   float adjust = 0;
-  ;
+  
   float distancep = 0;
   int nbcycle = 0;
+  MOTOR_SetSpeed(0, 0.15);
+  MOTOR_SetSpeed(1, 0.15);
+  delay(50);
+  MOTOR_SetSpeed(0, 0.25);
+  MOTOR_SetSpeed(1, 0.25);
+  delay(50);
+  MOTOR_SetSpeed(0, 0.35);
+  MOTOR_SetSpeed(1, 0.35);
+  delay(50);
+
   MOTOR_SetSpeed(1, speedright);
   MOTOR_SetSpeed(0, speedleft);
   while (distancep < borne)
@@ -114,6 +125,8 @@ void ligneDroite(float distance)
   MOTOR_SetSpeed(0, 0);
   MOTOR_SetSpeed(1, 0);
   delay(100);
+  ENCODER_Reset(0);
+  ENCODER_Reset(1);
 }
 // appeler whelle pour instaurer la dominance.
 void whelle(int temps)
@@ -191,34 +204,34 @@ void loop()
   //VARIABLE
   // put your main code here, to run repeatedly:
   delay(200);
-  ligneDroite(0.41);
+  ligneDroite(0.31);
   tourner(1,90);
-  ligneDroite(0.30);
+  ligneDroite(0.05);
   tourner(0,95);
-  ligneDroite(0.42);
-  delay(200); //lire couleur
+  ligneDroite(0.235);
+  delay(500); //lire couleur
 
-  ligneDroite(1.325);
+  ligneDroite(1.20);
   //Ramasse balle
+  delay(1000);
   
 
   //Si couleur detecter est jaune, faire ce trajet
-  /*ligneDroite(0.91);
+  /*ligneDroite(0.81);
   tourner(1,90);
-  ligneDroite(0.30);
+  ligneDroite(0.20);
   delay(200000);*/
 
   //Si couleur detecter est bleu
-  /*ligneDroite(1.73);
+  /*ligneDroite(1.66);
   tourner(0,95);
-  ligneDroite(0.33);
-  delay(200000)*/
+  ligneDroite(0.23);
+  delay(200000);*/
 
   //Si couleur detecter est rose
-  /*ligneDroite(2.445);
+  ligneDroite(2.35);
   tourner(1,90);
-  ligneDroite(0.26);
-  delay(200000);*/
-  
+  ligneDroite(0.15);
+  delay(200000);
   delay(200000);
 }
