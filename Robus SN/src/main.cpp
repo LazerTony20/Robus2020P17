@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <LibRobus.h>
+//#include "Micro.cpp"
 //0=moteur de gauche et 1=moteur de droite
 void setup()
 {
@@ -197,42 +198,65 @@ void courbe(float angle, float rayon, int sens)
   MOTOR_SetSpeed(1, 0);
   delay(50);
 }
+uint32_t soundLenght = 0;
+
+int sound_detection1()
+{
+  if(analogRead(A0) > 520)
+    {
+      soundLenght += 25;
+    }
+  else
+    {
+      soundLenght = 0;
+    }
+  delay(25);
+  if(soundLenght > 1200)
+    {
+      Serial.println("Son detecte");
+      return 0;
+    }
+  return 1;
+}
 
 
 void loop()
 {
   //VARIABLE
   // put your main code here, to run repeatedly:
-  delay(200);
-  ligneDroite(0.31);
-  tourner(1,80);
-  ligneDroite(0.04);
-  tourner(0,82);
-  ligneDroite(0.235);
-  delay(500); //lire couleur
+ if (sound_detection1() == 0)
+ {
+    delay(200);
+    ligneDroite(0.31);
+    tourner(1,80);
+    ligneDroite(0.02);
+    tourner(0,82);
+    ligneDroite(0.235);
+    delay(500); //lire couleur
 
-  ligneDroite(1.16);
-  //Ramasse balle
-  delay(2500);
+    ligneDroite(1.16);
+    //Ramasse balle
+    delay(2500);
   
 
-  //Si couleur detecter est jaune, faire ce trajet
-  /*ligneDroite(0.81);
-  tourner(1,80);
-  ligneDroite(0.20);
-  delay(200000);*/
+    //Si couleur detecter est jaune, faire ce trajet
+    /*ligneDroite(0.81);
+    tourner(1,80);
+    ligneDroite(0.20);
+    delay(200000);*/
 
-  //Si couleur detecter est bleu
-  /*ligneDroite(1.66);
-  tourner(0,82);
-  ligneDroite(0.08);
-  delay(200000);*/
+   //Si couleur detecter est bleu
+     /*ligneDroite(1.66);
+    tourner(0,82);
+    ligneDroite(0.08);
+    delay(200000);*/
 
-  //Si couleur detecter est rose
-  ligneDroite(2.32);
-  tourner(1,80);
-  ligneDroite(0.17);
-  delay(200000);
+   //Si couleur detecter est rose
+    ligneDroite(2.29);
+    tourner(1,80);
+    ligneDroite(0.15);
+    delay(200000);
 
-  delay(200000);
+    delay(200000);
+  }
 }
