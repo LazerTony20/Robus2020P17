@@ -205,33 +205,34 @@ void loop()
   // put your main code here, to run repeatedly:
   delay(200);
   ligneDroite(0.31);
-  tourner(1,90);
-  ligneDroite(0.05);
-  tourner(0,95);
+  tourner(1,80);
+  ligneDroite(0.04);
+  tourner(0,82);
   ligneDroite(0.235);
   delay(500); //lire couleur
 
-  ligneDroite(1.20);
+  ligneDroite(1.16);
   //Ramasse balle
-  delay(1000);
+  delay(2500);
   
 
   //Si couleur detecter est jaune, faire ce trajet
   /*ligneDroite(0.81);
-  tourner(1,90);
+  tourner(1,80);
   ligneDroite(0.20);
   delay(200000);*/
 
   //Si couleur detecter est bleu
   /*ligneDroite(1.66);
-  tourner(0,95);
-  ligneDroite(0.23);
+  tourner(0,82);
+  ligneDroite(0.08);
   delay(200000);*/
 
   //Si couleur detecter est rose
-  ligneDroite(2.35);
-  tourner(1,90);
-  ligneDroite(0.15);
+  ligneDroite(2.32);
+  tourner(1,80);
+  ligneDroite(0.17);
   delay(200000);
+
   delay(200000);
 }
