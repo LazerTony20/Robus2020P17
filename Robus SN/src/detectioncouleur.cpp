@@ -2,12 +2,13 @@
 #include <librobus.h>
 #include <Adafruit_TCS34725.h>
 
-
+/*
 void setup() {
   // put your setup code here, to run once:
   BoardInit();
   Serial.begin(9600);
 }
+*/
 
 Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);
 int longif(int moyennea, int moyenneb, int moyennec);
@@ -63,9 +64,10 @@ int longif(int moyennea, int moyenneb, int moyennec);
       return 0;
     }
   }
-
+/*
 void loop() {
   couleur(3);
   delay(5000);
   // put your main code here, to run repeatedly:
 }
+*/
