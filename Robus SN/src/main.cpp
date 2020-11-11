@@ -2,13 +2,18 @@
 #include <LibRobus.h>
 #include <Fonctions.cpp>
 //#include <Micro.cpp>
+
+#define Servo1 1
+
+//void activerServo(uint8_t id_Servo,uint8_t angle_Servo);
+
 //0=moteur de gauche et 1=moteur de droite
 void setup()
 {
   // put your setup code here, to run once:
   BoardInit();
 }
-
+//----------//
 float Angle(float theta)
 {
   // theta (entier): angle en degré à laquelle le robot doit virer
@@ -18,6 +23,7 @@ float Angle(float theta)
   //Serial.println(nbLecture);
   return nbLecture;
 }
+//----------//
 // appeler virage pour tourner sur soi-même selon l'angle "angle". 0 = virage à gauche. 1 = virage à droite
 void virage(int sens, float angle)
 {
@@ -44,6 +50,7 @@ void virage(int sens, float angle)
   ENCODER_Reset(0);
   delay(100);
 }
+//----------//
 // appeler lignerDroite pour avancer selon la distance en mètre "distance".
 void tourner(int sens, float angle)
 {
@@ -75,6 +82,7 @@ void tourner(int sens, float angle)
   ENCODER_Reset(0);
   ENCODER_Reset(1);
 }
+//----------//
 void ligneDroite(float distance)
 {
   //Pour aller en ligne droite sur une distance déterminée en mètre
@@ -199,8 +207,9 @@ void courbe(float angle, float rayon, int sens)
   MOTOR_SetSpeed(1, 0);
   delay(50);
 }
-uint32_t soundLenght = 0;
 
+//----------//
+uint32_t soundLenght = 0;
 int sound_detection1()
 {
   if(analogRead(A0) > 520)
@@ -220,13 +229,26 @@ int sound_detection1()
   return 1;
 }
 
+void activerServo(int id_Servo,int angle_Servo){
+    SERVO_Enable(id_Servo);
+    SERVO_SetAngle(id_Servo, angle_Servo);
+    delay(50);
+    SERVO_Disable(id_Servo);
+    delay(50);
+}
 
 void loop()
 {
   //VARIABLE
+   activerServo(Servo1,45);
+   delay(2500);
+   activerServo(Servo1,-45);
+   delay(2500);
   // put your main code here, to run repeatedly:
  if (sound_detection1() == 0)
  {
+  
+    /*
     delay(200);
     ligneDroite(0.31);
     tourner(1,80);
@@ -238,7 +260,7 @@ void loop()
     ligneDroite(1.16);
     //Ramasse balle
     delay(2500);
-  
+  --------------------*/
 
     //Si couleur detecter est jaune, faire ce trajet
     /*ligneDroite(0.81);
@@ -251,6 +273,7 @@ void loop()
     tourner(0,82);
     ligneDroite(0.08);
     delay(200000);*/
+/*
 
    //Si couleur detecter est rose
     ligneDroite(2.29);
@@ -259,5 +282,6 @@ void loop()
     delay(200000);
 
     delay(200000);
+    --------------------*/
   }
 }
