@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include <LibRobus.h>
 #include <Fonctions.h>
-//#include <Micro.cpp>
 
 #define Servo1 1
 
@@ -209,25 +208,6 @@ void courbe(float angle, float rayon, int sens)
 }
 
 //----------//
-uint32_t soundLenght = 0;
-int sound_detection1()
-{
-  if(analogRead(A0) > 520)
-    {
-      soundLenght += 25;
-    }
-  else
-    {
-      soundLenght = 0;
-    }
-  delay(25);
-  if(soundLenght > 1200)
-    {
-      Serial.println("Son detecte");
-      return 0;
-    }
-  return 1;
-}
 
 void loop()
 {
@@ -235,7 +215,7 @@ void loop()
    activerServo(Servo1,45);
    activerServo(Servo1,135);
   // put your main code here, to run repeatedly:
- if (sound_detection1() == 0)
+ if (sound_detection() == 0)
  {
   
     /*
