@@ -2,7 +2,7 @@
 #include "LibRobUS.h"
 
 
-uint32_t soundLenght = 0;
+/*uint32_t soundLenght = 0;
 void sound_detection() {
   if(analogRead(A0) > 520)
     {
@@ -18,3 +18,4 @@ void sound_detection() {
       Serial.println("Son detecte");
     }
 }
+*/

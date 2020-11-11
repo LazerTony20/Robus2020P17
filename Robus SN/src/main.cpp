@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <LibRobus.h>
-//#include "Micro.cpp"
+#include <Fonctions.cpp>
+//#include <Micro.cpp>
 //0=moteur de gauche et 1=moteur de droite
 void setup()
 {
