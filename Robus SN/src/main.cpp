@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <LibRobus.h>
-#include <Fonctions.cpp>
+#include <Fonctions.h>
 //#include <Micro.cpp>
 
 #define Servo1 1
@@ -229,21 +229,11 @@ int sound_detection1()
   return 1;
 }
 
-void activerServo(int id_Servo,int angle_Servo){
-    SERVO_Enable(id_Servo);
-    SERVO_SetAngle(id_Servo, angle_Servo);
-    delay(50);
-    SERVO_Disable(id_Servo);
-    delay(50);
-}
-
 void loop()
 {
   //VARIABLE
    activerServo(Servo1,45);
-   delay(2500);
-   activerServo(Servo1,-45);
-   delay(2500);
+   activerServo(Servo1,135);
   // put your main code here, to run repeatedly:
  if (sound_detection1() == 0)
  {
