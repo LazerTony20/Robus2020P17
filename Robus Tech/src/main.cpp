@@ -34,7 +34,7 @@ float error_matrix[3][2] = {
   {0.0001,0}
 };
 float newMvmt_matrix[nb_mvmt][3] = {
-  {direction,41.5,0},
+  {direction, 41.5,0},
   {angle,deg90,0},
   {direction,41.5,0},
   {angle,deg90,0},
@@ -123,7 +123,7 @@ float traveldistance[2][2] = {
 //------Fonction pour faire bouger le robot selon le type de mouvement jusqua sa destination----------------------------------//
   void move(int pos_mvmt_matrix){
     bool destinationreached = false;
-    calculatetravel((int)mvmt_matrix[TypeTravel][pos_mvmt_matrix], mvmt_matrix[ValueTravel][pos_mvmt_matrix], mvmt_matrix[AngleDifferencial][pos_mvmt_matrix]);
+    calculatetravel((int)newMvmt_matrix[pos_mvmt_matrix][TypeTravel], newMvmt_matrix[pos_mvmt_matrix][ValueTravel], newMvmt_matrix[pos_mvmt_matrix][AngleDifferencial]);
   
   //--Boucle for qui sert a faire avancer les moteurs jusqu'a temps que la destination voulue sera atteinte
     ENCODER_Reset(MOTOR2ID);
@@ -132,7 +132,7 @@ float traveldistance[2][2] = {
     {
       ReadEncodeur2 = ENCODER_Read(MOTOR2ID);
       ReadEncodeur1 = ENCODER_Read(MOTOR1ID);
-      switch ((int)mvmt_matrix[0][pos_mvmt_matrix])
+      switch ((int)newMvmt_matrix[pos_mvmt_matrix][TypeTravel])
       {
       //Déplacement de type linéaire (deux roues auront des valeur d'encodeurs croissantes)
       case direction:
