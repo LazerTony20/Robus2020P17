@@ -47,15 +47,15 @@ int longif(int moyennea, int moyenneb, int moyennec);
 
   int longif(int moyennea, int moyenneb, int moyennec)
   {
-    if(moyennea<=225 && moyennea>=100 && moyenneb<=175 && moyenneb>=100 && moyennec<=200 && moyennec>=75)
+    if(moyennea<=155 && moyennea>=145 && moyenneb<=179 && moyenneb>=169 && moyennec<=135 && moyennec>=125)
     {
       return 1;
     }
-    else if(moyennea<=350 && moyennea>=250 && moyenneb<=375 && moyenneb>=250 && moyennec<=250 && moyennec>=150)
+    else if(moyennea<=123 && moyennea>=113 && moyenneb<=163 && moyenneb>=153 && moyennec<=135 && moyennec>=128)
     {
       return 2;
     }
-    else if(moyennea<=300 && moyennea>=225 && moyenneb<=375 && moyenneb>=300 && moyennec<=325 && moyennec>=251)
+    else if(moyennea<=350 && moyennea>=225 && moyenneb<=375 && moyenneb>=300 && moyennec<=325 && moyennec>=251)
     {
       return 3;
     }
