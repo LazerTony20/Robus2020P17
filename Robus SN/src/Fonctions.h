@@ -3,8 +3,9 @@
 #include<Adafruit_TCS34725.h>
 
 //=======================================================DÉCLARATIONS========================================================//
-
 uint32_t soundLenght = 0;
+Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);
+int longif(int moyennea, int moyenneb, int moyennec);
 
 //=========================================================FONCTIONS=========================================================//
 
@@ -16,11 +17,9 @@ void activerServo(int id_Servo,int angle_Servo){
     SERVO_Disable(id_Servo);
     delay(500);
 }
-<<<<<<< HEAD
-Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);
-int longif(int moyennea, int moyenneb, int moyennec);
 
-  int couleur(int nbfois)
+//Check la couleur avec le capteur
+int couleur(int nbfois)
   {
     uint16_t clear, red, green, blue;
     int sommer = 0;
@@ -52,6 +51,7 @@ int longif(int moyennea, int moyenneb, int moyennec);
       return longif(moyenner, moyenneg, moyenneb);
   }
 
+//Retourne la valeur de couleur lue par le capteur de couleur
 int longif(int moyennea, int moyenneb, int moyennec)
   {
     if(moyennea<=320 && moyennea>=300 && moyenneb<=290 && moyenneb>=275) //&& moyennec<=260 && moyennec>=245)
@@ -85,7 +85,6 @@ int longif(int moyennea, int moyenneb, int moyennec)
       return 0;
     }
   }
-=======
 
 //Fonction de détection du son 5kHz
 int sound_detection()
@@ -106,9 +105,3 @@ int sound_detection()
     }
   return 1;
 }
-
-//Fonction de détection de couleur
-
-
-
->>>>>>> Anthony
